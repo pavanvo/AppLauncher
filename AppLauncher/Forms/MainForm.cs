@@ -1,11 +1,13 @@
 ﻿using AppLauncher.Controls;
 using AppLauncher.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +15,9 @@ using System.Windows.Forms;
 
 namespace AppLauncher {
     public partial class MainForm : Form {
+
+        private const string FileName = "Settings.json";
+
         private readonly int Angle = new Random().Next(0, 180);
 
         public MainForm() {
@@ -29,42 +34,17 @@ namespace AppLauncher {
             e.Graphics.FillRectangle(new LinearGradientBrush(Bounds, Color.FromArgb(64, 176, 255), Color.Black, Angle), Bounds);
         }
 
-        Settings fill() {
-            var settings = new Settings {
-                Colomns = 3,
-            };
-
-
-            var app = new App {
-                Name = "Test",
-                Promo = new Promo {
-                    PromoType = PromoType.Video,
-                    FilePath = @"C:\Users\Tester\Desktop\Test\1.MOV"
-                },
-                Price = 300,
-                ExecPath = @"C:\Users\Tester\Downloads\BrainTraining.exe"
-            }; 
-            
-            var app1 = new App {
-                Name = "Железная дорога",
-                Promo = new Promo {
-                    PromoType = PromoType.Image,
-                    FilePath = @"C:\Users\Tester\Desktop\Test\Железная дорога.jpg"
-                },
-                Price = 300,
-                ExecPath = @"C:\Users\Tester\Downloads\BrainTraining.exe"
-            };        
-
-            settings.Apps.Add(app);
-            settings.Apps.Add(app1);
-            settings.Apps.Add(app1);
-            settings.Apps.Add(app1);
-
-            return settings;
+        Settings LoadSettings() {
+            if (File.Exists(FileName)) {
+                var text = File.ReadAllText(FileName);
+                var settings = JsonConvert.DeserializeObject<Settings>(text);
+                return settings;
+            }
+            return null;
         }
 
         private void MainForm_Load(object sender, EventArgs e) {
-            var settings = fill();
+            var settings = LoadSettings();
 
             var table = new TableLayoutPanelDoubleBuffered {
                 Dock = DockStyle.Fill,
@@ -76,9 +56,10 @@ namespace AppLauncher {
 
 
             for (int i = 0; i < settings.Apps.Count; i++) {
-                var app = settings.Apps[i];
                 var width = Convert.ToInt32((double)Width / settings.Colomns);
                 var height = Convert.ToInt32(Height / rows);
+
+                var app = settings.Apps[i];
                 var appCard = new AppCard(app, new Size(width, height));
 
                 var colomn = i % settings.Colomns;

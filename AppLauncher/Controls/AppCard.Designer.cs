@@ -50,7 +50,7 @@ namespace AppLauncher {
             this.labelName.Location = new System.Drawing.Point(0, 0);
             this.labelName.Margin = new System.Windows.Forms.Padding(8);
             this.labelName.Name = "labelName";
-            this.labelName.Size = new System.Drawing.Size(488, 26);
+            this.labelName.Size = new System.Drawing.Size(488, 35);
             this.labelName.TabIndex = 1;
             this.labelName.Text = "Name";
             this.labelName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
