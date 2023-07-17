@@ -16,14 +16,10 @@ namespace AppLauncher {
 
         private const string FileName = "Settings.json";
 
-        public SettingsForm() {
+        public SettingsForm(Settings settings) {
             InitializeComponent();
-        }
-
-        private void SettingsForm_Load(object sender, EventArgs e) {
             comboBoxPromo.DataSource = Enum.GetValues(typeof(PromoType));
-            var settings = LoadSettings();
-            FillSetting(settings);
+            if (settings != null) FillSetting(settings);
         }
 
         void FillSetting(Settings settings) {
@@ -50,6 +46,22 @@ namespace AppLauncher {
             return settings;
         }
 
+        bool CheckApp() {
+            if (string.IsNullOrWhiteSpace(textBoxName.Text)) {
+                MessageBox.Show("Заполните Название", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(textBoxPromo.Text)) {
+                MessageBox.Show("Заполните Промо файл", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(textBoxExec.Text)) {
+                MessageBox.Show("Заполните Файл приложения", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                return false;
+            }
+            return true;
+        }
+
         App ParseApp() {
             Enum.TryParse(comboBoxPromo.SelectedValue.ToString(), out PromoType promoType);
 
@@ -71,16 +83,8 @@ namespace AppLauncher {
             File.WriteAllText(FileName, text);
         }
 
-        Settings LoadSettings() {
-            if (File.Exists(FileName)) {
-                var text = File.ReadAllText(FileName);
-                var settings = JsonConvert.DeserializeObject<Settings>(text);
-                return settings;
-            }
-            return null;
-        }
-
         private void buttonAdd_Click(object sender, EventArgs e) {
+            if (!CheckApp()) return;
             var app = ParseApp();
             var settings = ParseSettings();
 
@@ -92,13 +96,19 @@ namespace AppLauncher {
 
         private void buttonEdit_Click(object sender, EventArgs e) {
             if (listBox.SelectedItem is App) {
+                if (!CheckApp()) return;
+
+                var index = listBox.SelectedIndex;
+
                 var settings = ParseSettings();
-
                 var app = ParseApp();
-                settings.Apps[listBox.SelectedIndex] = app;
-                FillSetting(settings);
 
+                settings.Apps[index] = app;
+
+                FillSetting(settings);
                 SaveSettings(settings);
+
+                listBox.SelectedIndex = index;
             }
         }
 

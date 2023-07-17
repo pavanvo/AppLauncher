@@ -69,6 +69,9 @@
     <Compile Include="Controls\TableLayoutPanelDoubleBuffered.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\TransparentPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Helpers\ControlHelper.cs" />
     <Compile Include="Helpers\ProcessHelper.cs" />
     <Compile Include="Forms\MainForm.cs">

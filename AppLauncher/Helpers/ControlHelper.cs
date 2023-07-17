@@ -11,9 +11,15 @@ namespace AppLauncher.Helpers {
         /// переместить элементам управления на центр
         /// </summary>
         public static void Move2Centr(this Control control) {
-            control.Left = (control.Parent.Width - control.Width) / 2;
-            //control.Top = (control.Parent.Height - control.Height) / 2;
+            control.Move2HCentr();
+            control.Move2VCentr();
         }
 
+        public static void Move2HCentr(this Control control) {
+            control.Left = (control.Parent.Width - control.Width) / 2;
+        }
+        public static void Move2VCentr(this Control control) {
+            control.Top = (control.Parent.Height - control.Height) / 2;
+        }
     }
 }

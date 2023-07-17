@@ -16,54 +16,44 @@ using System.Windows.Forms;
 namespace AppLauncher {
     public partial class MainForm : Form {
 
-        private const string FileName = "Settings.json";
-
         private readonly int Angle = new Random().Next(0, 180);
-
-        public MainForm() {
+        Settings Settings;
+        public MainForm(Settings settings) {
+            Settings = settings;
             InitializeComponent();
 
             TopMost = true;
             WindowState = FormWindowState.Maximized;
-            FormBorderStyle = FormBorderStyle.None;
+            FormBorderStyle = FormBorderStyle.None;       
         }
 
         protected override void OnPaintBackground(PaintEventArgs e) {
             base.OnPaintBackground(e);
             // Установка градиента
-            e.Graphics.FillRectangle(new LinearGradientBrush(Bounds, Color.FromArgb(64, 176, 255), Color.Black, Angle), Bounds);
-        }
-
-        Settings LoadSettings() {
-            if (File.Exists(FileName)) {
-                var text = File.ReadAllText(FileName);
-                var settings = JsonConvert.DeserializeObject<Settings>(text);
-                return settings;
-            }
-            return null;
+            e.Graphics.FillRectangle(new LinearGradientBrush(Bounds, Color.Black, Color.Black, Angle), Bounds);
         }
 
         private void MainForm_Load(object sender, EventArgs e) {
-            var settings = LoadSettings();
+            if (Settings == null) return;
 
             var table = new TableLayoutPanelDoubleBuffered {
                 Dock = DockStyle.Fill,
             };
-            var rows = Math.Ceiling((double)settings.Apps.Count / settings.Colomns);
+            var rows = Math.Ceiling((double)Settings.Apps.Count / Settings.Colomns);
 
-            for (int i = 0; i < rows; i++) 
-                table.RowStyles.Add(new RowStyle(SizeType.Percent, 100F / settings.Colomns));
+            for (int i = 0; i < rows; i++)
+                table.RowStyles.Add(new RowStyle(SizeType.Percent, 100F / Settings.Colomns));
 
 
-            for (int i = 0; i < settings.Apps.Count; i++) {
-                var width = Convert.ToInt32((double)Width / settings.Colomns);
+            for (int i = 0; i < Settings.Apps.Count; i++) {
+                var width = Convert.ToInt32((double)Width / Settings.Colomns);
                 var height = Convert.ToInt32(Height / rows);
 
-                var app = settings.Apps[i];
+                var app = Settings.Apps[i];
                 var appCard = new AppCard(app, new Size(width, height));
 
-                var colomn = i % settings.Colomns;
-                var row = (int)Math.Ceiling((double)(i + 1) / settings.Colomns);
+                var colomn = i % Settings.Colomns;
+                var row = (int)Math.Ceiling((double)(i + 1) / Settings.Colomns);
                 table.Controls.Add(appCard, colomn, row - 1);
             }
 

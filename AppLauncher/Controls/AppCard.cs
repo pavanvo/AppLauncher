@@ -32,17 +32,31 @@ namespace AppLauncher {
             Width = size.Width - Margin.Horizontal;
             Height = size.Height - Margin.Vertical;
 
-            labelName.Text = app.Name;
-            labelPrice.Text = app.Price + ""; labelPrice.Move2Centr();
+            labelName.Text = app.Name; labelName.Width = Width; labelName.Move2HCentr();
+
+            labelPrice.Text = app.Price + ""; labelPrice.Move2HCentr();
+
+            vlcControl.Width = Width - Margin.Horizontal; vlcControl.Move2HCentr();
+
             Executable = app.ExecPath;
+
             switch (app.Promo.PromoType) {
                 case PromoType.Video: InitVideo(app.Promo.FilePath); break;
                 case PromoType.Image: InitImage(app.Promo.FilePath); break;
             }
+
+            var TransparentPanel = new Controls.TransparentPanel();
+            TransparentPanel.Click += (o, e) => AppCard_Click(o, e);
+            TransparentPanel.SetBounds(0, 0, Width, Height);
+            Controls.Add(TransparentPanel);
+            TransparentPanel.BringToFront();
+        }
+
+        protected override void OnPaint(PaintEventArgs e) {
+            ControlPaint.DrawBorder(e.Graphics, ClientRectangle, Color.White, ButtonBorderStyle.Solid);
         }
 
         private async void AppCard_Click(object sender, EventArgs e) {
-
             if (!IsRunning) {
                 try {
                     IsRunning = true;
@@ -56,9 +70,6 @@ namespace AppLauncher {
             }
         }
 
-        private void AppCard_Load(object sender, EventArgs e) {
-
-        }
 
         private void InitVideo(string media) {
             var currentAssembly = Assembly.GetEntryAssembly();
@@ -76,44 +87,43 @@ namespace AppLauncher {
 
             var track = vlcMedia.Tracks.FirstOrDefault();
             if (track?.Type == MediaTrackTypes.Video) {
-                vlcControl.Video.IsMouseInputEnabled = false;
-                vlcControl.Video.IsKeyInputEnabled = false;
-
                 var trackInfo = (track.TrackInfo as VideoTrack);
                 Resize((int)trackInfo.Width, (int)trackInfo.Height);
             }
 
-            vlcControl.Click += (o, e) => AppCard_Click(o, e);
             vlcControl.Play();
         }
 
         private void InitImage(string media) {
-            Controls.Remove(vlcControl);
-
             var image = Image.FromFile(media);
             Resize(image.Width, image.Height);
 
             var pictreBox = new PictureBox {
+                Anchor = vlcControl.Anchor,
                 Bounds = vlcControl.Bounds,
                 BackgroundImage = image,
                 BackgroundImageLayout = ImageLayout.Zoom,
-                Dock = DockStyle.Bottom,
             };
-            pictreBox.Click += (o, e) => AppCard_Click(o, e);
-
+            Controls.Remove(vlcControl);
             Controls.Add(pictreBox);
         }
 
         private new void Resize(int width, int height) {
             var coef = (double)width / Width;
 
-            height = Convert.ToInt32(height / coef);
-            var diff = Height - labelName.Height - height;
+            var heightNew = Convert.ToInt32(height / coef);
+            var diff = Height - labelName.Height - heightNew;
             Height -= diff;
 
             var vertical = (diff - Margin.Vertical) / 2;
             var horizontal = Margin.Horizontal / 2;
             Margin = new Padding(horizontal, vertical, horizontal, vertical);
+
+            vlcControl.Width = Width - vlcControl.Margin.Horizontal;
+            coef = (double)width / vlcControl.Width;
+            heightNew = Convert.ToInt32(height / coef);
+            vlcControl.Top = vlcControl.Top - (heightNew - vlcControl.Height);
+            vlcControl.Height = heightNew;
         }
     }
 }
