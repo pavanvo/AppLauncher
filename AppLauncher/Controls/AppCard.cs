@@ -17,6 +17,10 @@ using Vlc.DotNet.Core.Interops.Signatures;
 namespace AppLauncher {
     public partial class AppCard : UserControl {
 
+        private readonly Timer Timer = new Timer();
+        const int SECONDS_2_EXIT = 10;
+        int Seconds2Exit = SECONDS_2_EXIT;
+
         private static bool IsRunning = false;
 
         private static readonly string[] MediaOptions = {
@@ -26,8 +30,24 @@ namespace AppLauncher {
 
         private string Executable { get; set; }
 
+        private void TransparentPanel_MouseDown(object sender, MouseEventArgs e) {
+            if (e.Button == MouseButtons.Right) {
+                Timer.Start();
+            }
+        }
+
+        private void TransparentPanel_MouseUp(object sender, MouseEventArgs e) {
+            if (e.Button == MouseButtons.Right) {
+                Timer.Stop();
+                Seconds2Exit = SECONDS_2_EXIT;
+            }
+        }
+
         public AppCard(App app, Size size) {
             InitializeComponent();
+
+            Timer.Interval = 1000;
+            Timer.Tick += (o, e) => { Seconds2Exit--; if (Seconds2Exit < 0) Application.Exit(); Console.WriteLine(Seconds2Exit); };
 
             Width = size.Width - Margin.Horizontal;
             Height = size.Height - Margin.Vertical;
@@ -47,6 +67,8 @@ namespace AppLauncher {
 
             var TransparentPanel = new Controls.TransparentPanel();
             TransparentPanel.Click += (o, e) => AppCard_Click(o, e);
+            TransparentPanel.MouseDown += TransparentPanel_MouseDown;
+            TransparentPanel.MouseUp += TransparentPanel_MouseUp;
             TransparentPanel.SetBounds(0, 0, Width, Height);
             Controls.Add(TransparentPanel);
             TransparentPanel.BringToFront();

@@ -24,6 +24,7 @@ namespace AppLauncher {
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.label1 = new System.Windows.Forms.Label();
             this.numericColomns = new System.Windows.Forms.NumericUpDown();
             this.listBox = new System.Windows.Forms.ListBox();
@@ -258,9 +259,10 @@ namespace AppLauncher {
             this.Controls.Add(this.numericColomns);
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "SettingsForm";
-            this.Text = "SettingsForm";
+            this.Text = "App Launcher Settings";
             ((System.ComponentModel.ISupportInitialize)(this.numericColomns)).EndInit();
             this.groupBox.ResumeLayout(false);
             this.groupBox.PerformLayout();
