@@ -2,11 +2,19 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AppLauncher.Helpers {
     class ProcessHelper {
+
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindowAsync(HandleRef hWnd, int nCmdShow);
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr WindowHandle);
+        public const int SW_RESTORE = 9;
+
         public static async Task<int> RunProcessAsync(string fileName, string args) {
             using (var process = new Process {
                 StartInfo = {
@@ -23,8 +31,8 @@ namespace AppLauncher.Helpers {
             var tcs = new TaskCompletionSource<int>();
 
             process.Exited += (s, ea) => tcs.SetResult(process.ExitCode);
-            process.OutputDataReceived += (s, ea) => Console.WriteLine(ea.Data);
-            process.ErrorDataReceived += (s, ea) => Console.WriteLine("ERR: " + ea.Data);
+            process.OutputDataReceived += (s, ea) => { if (string.IsNullOrWhiteSpace(ea.Data)) Console.WriteLine(ea.Data); };
+            process.ErrorDataReceived += (s, ea) => { if (string.IsNullOrWhiteSpace(ea.Data)) Console.WriteLine("ERR: " + ea.Data); };
 
             bool started = process.Start();
             if (!started) {
@@ -35,6 +43,9 @@ namespace AppLauncher.Helpers {
 
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
+
+            ShowWindowAsync(new HandleRef(null, process.MainWindowHandle), SW_RESTORE);
+            SetForegroundWindow(process.MainWindowHandle);
 
             return tcs.Task;
         }
